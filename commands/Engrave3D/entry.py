@@ -6,7 +6,7 @@ app = adsk.core.Application.get()
 ui = app.userInterface
 
 
-# TODO *** Specify the command identity information. ***
+# Command identity information.
 CMD_ID = f'{config.COMPANY_NAME}_{config.ADDIN_NAME}_Engrave3D'
 CMD_NAME = 'Numéro de pièces'
 CMD_Description = 'Ajout de numéro de pièces'
@@ -14,17 +14,14 @@ CMD_Description = 'Ajout de numéro de pièces'
 # Specify that the command will be promoted to the panel.
 IS_PROMOTED = True
 
-# TODO *** Define the location where the command button will be created. ***
-# This is done by specifying the workspace, the tab, and the panel, and the 
-# command it will be inserted beside. Not providing the command to position it
-# will insert it at the end.
+# Location of the command
 WORKSPACE_ID = config.design_workspace
 TAB_ID = config.tab_id
 TAB_NAME = config.tab_name
 PANEL_ID = config.print_3d_panl_id
 PANEL_NAME = config.print_3d_panl_name
 PANEL_AFTER = ''
-#COMMAND_BESIDE_ID = 'ScriptsManagerCommand'
+
 
 # Resource location for command icons, here we assume a sub folder in this directory named "resources".
 ICON_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', '')
@@ -111,8 +108,6 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
 def command_execute(args: adsk.core.CommandEventArgs):
     # General logging for debug.
     futil.log(f'{CMD_NAME} Command Execute Event')
-
-    # TODO ******************************** Your code here ********************************
 
     # Get a reference to your command's inputs.
     inputs = args.command.commandInputs
