@@ -127,17 +127,25 @@ def command_execute(args: adsk.core.CommandEventArgs):
     sketches = rootComp.sketches;
     plane = selected_entity
     sketch = sketches.add(plane)
+    FaceBox = sketch.boundingBox
+    point1 = FaceBox.minPoint
+    point2 = FaceBox.maxPoint
+    # pPoint1 = sketch.projet(point1)
+    # pPoint2 = sketch.projet(point2)
+    # skLine = sketch.sketchCurves.sketchLines
+    # returnValue = skLine.addByTwoPoints(pPoint1, pPoint2)
     txt = sketch.sketchTexts
     input = txt.createInput2(text,0.5)
-    input.setAsMultiLine(adsk.core.Point3D.create(0, 0, 0),
-                             adsk.core.Point3D.create(2, 3, 0),
-                             adsk.core.HorizontalAlignments.LeftHorizontalAlignment,
-                             adsk.core.VerticalAlignments.TopVerticalAlignment, 0)
+    input.setAsMultiLine(adsk.core.Point3D.create(point1.x, point1.y, 0),
+                             adsk.core.Point3D.create(point2.x, point2.y, 0),
+                             adsk.core.HorizontalAlignments.CenterHorizontalAlignment,
+                             adsk.core.VerticalAlignments.MiddleVerticalAlignment, 0)
+
     prof = txt.add(input)
 
     # Extrusion
     extrudes = rootComp.features.extrudeFeatures
-    #prof = sketch.profiles.item(0)
+   
     # Extrude Sample 1: A simple way of creating typical extrusions (extrusion that goes from the profile plane the specified distance).
     # Define a distance extent of -1 mm
     distance = adsk.core.ValueInput.createByReal(-0.1)
