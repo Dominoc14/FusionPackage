@@ -8,8 +8,8 @@ ui = app.userInterface
 
 # Command identity information.
 CMD_ID = f'{config.COMPANY_NAME}_{config.ADDIN_NAME}_Engrave3D'
-CMD_NAME = 'Numéro de pièces'
-CMD_Description = 'Ajout de numéro de pièces'
+CMD_NAME = 'Engrave3D'
+CMD_Description = 'Part Number Engraving'
 
 # Specify that the command will be promoted to the panel.
 IS_PROMOTED = True
@@ -89,16 +89,16 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
     inputs = args.command.commandInputs
 
     # Create the title of the UI box
-    title_box = inputs.addTextBoxCommandInput('title_box', '', 'Paramètre de la gravure', 1, True)
+    title_box = inputs.addTextBoxCommandInput('title_box', '', 'Engraving Parameters', 1, True)
 
     # Create a selection input, apply filters and set the selection limits
     selection_input = inputs.addSelectionInput('selection_input', 'Face Selection', 'Select Face')
     selection_input.addSelectionFilter('Faces')
     selection_input.setSelectionLimits(1, 1)
 
-    # Create some text boxes for your user interface
+    # Create some text boxes for the part number
     title_box.isFullWidth = True
-    Name_input =  inputs.addTextBoxCommandInput('text_box', 'Numéro de pièce', 'WXXXX', 1, False)
+    Name_input =  inputs.addTextBoxCommandInput('text_box', 'Part Number', 'WXXXX', 1, False)
 
 
 
@@ -130,11 +130,9 @@ def command_execute(args: adsk.core.CommandEventArgs):
     FaceBox = sketch.boundingBox
     point1 = FaceBox.minPoint
     point2 = FaceBox.maxPoint
-    # pPoint1 = sketch.projet(point1)
-    # pPoint2 = sketch.projet(point2)
-    # skLine = sketch.sketchCurves.sketchLines
-    # returnValue = skLine.addByTwoPoints(pPoint1, pPoint2)
+
     txt = sketch.sketchTexts
+    # Create the input for the sketchTexts, 5mm tall (0.5 cm)
     input = txt.createInput2(text,0.5)
     input.setAsMultiLine(adsk.core.Point3D.create(point1.x, point1.y, 0),
                              adsk.core.Point3D.create(point2.x, point2.y, 0),
