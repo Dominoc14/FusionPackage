@@ -19,7 +19,7 @@ COMPANY_NAME = 'ACME'
 
 design_workspace = 'FusionSolidEnvironment'
 tab_id =  'FP'
-tab_name = "FUSIONPACKAGE"
+tab_name = "FUSION PACKAGE"
 
 # 3D print Panel
 print_3d_panl_id = 'Fonction3D'
