@@ -20,4 +20,4 @@ In short, FusionPackage is a convivial way to ensure all Fusion 360 users of an 
 Fortunately, [AutodeskFusion360](https://github.com/AutodeskFusion360) has already made a nice tutorial on how to install Add-in into fusion 360.
 You can find it [here](https://rawgit.com/AutodeskFusion360/AutodeskFusion360.github.io/master/Installation.html). 
 
-**Note:** Fusion 360 can recognise add-in and scripts even if they’re not in the specified API folder. You can put the files on a network for everyone to access them. 
+
