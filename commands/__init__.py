@@ -4,12 +4,13 @@
 # If you want to add an additional command, duplicate one of the existing directories and import it here.
 # You need to use aliases (import "entry" as "my_module") assuming you have the default module named "entry".
 from .Engrave3D import entry as Engrave3D
+from .SaveAsExternal import entry as SaveAsExternal
 
 
 # TODO add your imported modules to this list.
 # Fusion will automatically call the start() and stop() functions.
 commands = [
-    Engrave3D,
+    Engrave3D, SaveAsExternal,
 ]
 
 
