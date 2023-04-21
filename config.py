@@ -22,8 +22,12 @@ tab_id =  'FP'
 tab_name = "FUSION PACKAGE"
 
 # 3D print Panel
-print_3d_panl_id = 'Fonction3D'
+print_3d_panl_id = '3d_print'
 print_3d_panl_name = '3D PRINT'
+
+# Clean CAD Panel
+clean_CAD_panl_id = 'clean_cad'
+clean_CAD_panl_name = 'Clean CAD'
 
 # Palettes
 sample_palette_id = f'{COMPANY_NAME}_{ADDIN_NAME}_palette_id'
