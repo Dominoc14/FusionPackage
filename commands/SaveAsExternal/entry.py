@@ -1,7 +1,8 @@
-import adsk.core
+import adsk.core, traceback
 import os
 from ...lib import fusion360utils as futil
 from ... import config
+import time
 app = adsk.core.Application.get()
 ui = app.userInterface
 
@@ -84,7 +85,7 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
     # Connect to the events that are needed by this command.
     futil.add_handler(args.command.execute, command_execute, local_handlers=local_handlers)
     futil.add_handler(args.command.destroy, command_destroy, local_handlers=local_handlers)
-    
+
     # Get all components in the active design.
     product = app.activeProduct
     global design
@@ -101,35 +102,69 @@ def command_execute(args: adsk.core.CommandEventArgs):
     # General logging for debug.
     futil.log(f'{CMD_NAME} Command Execute Event')
 
-    
+    # Liste of all de components
     components = design.allComponents
-
-    # Find all of the empty components.
-    # It is empty if it has no occurrences, bodies, featres, sketches, or construction.
+    # Find the root component to exclude it
     root = design.rootComponent
+    # Make the list of all the component to save
     componentsToSave = []
-
     for component in components:
-
         # Skip the root component.
         if root == component:
             continue
-        
         componentsToSave.append(component)
 
-    
-    # Delete all immediate occurrences of the empty components.
+    # Save as all the component
     SavedComponents = []
-    Folder = app.data.activeFolder
+    Root_Name = root.name
+    New_folder_name = Root_Name  + ' external part '
+    Active_Folder = app.data.activeFolder
+    Save_Folder = Active_Folder.dataFolders.add(New_folder_name)
     global k
     k = 0
     for component in componentsToSave:
-
-        # Get the name first because deleting the final Occurrence will delete the Component.
+        # Get the name
         name = component.name
-        component.saveCopyAs(name,Folder ,'','' )
+        doc = component.saveCopyAs(name,Save_Folder ,'','' )
         SavedComponents.append(name)
+        # Spin until the save is complete, up to 5 seconds and then abort.
+        startTime = time.time()
+        endTime = startTime + 10
+        while not doc.uploadState and time.time() < endTime: 
+         app.log('Waiting for save to finish.')
+         state = doc.uploadState
+         app.log(str(state))
+         time.sleep(0.5)
+         adsk.doEvents()
+        app.log('File is saved')
+        state = doc.uploadState
+        app.log(str(state))
+        adsk.doEvents()
+    
+    componentsToDelete = componentsToSave
+    for component in componentsToDelete:
+     if component.isValid == True:
+        occurrences = root.allOccurrencesByComponent(component)
+        name = component.name
+        uniqueOccurrences = []
+        for occurrence in occurrences:
+                
+            for k in range(0, len(uniqueOccurrences)):
+                if occurrence is uniqueOccurrences[k]:
+                    break
+            if k == len(uniqueOccurrences):
+                uniqueOccurrences.append(occurrence)
 
+            # Delete them.
+            for uniqueOccurrencesI in uniqueOccurrences:
+                uniqueOccurrencesI.deleteMe()
+
+    #import file into curent design 
+    for file in Save_Folder.dataFiles:
+           root.occurrences.addByInsert(file, adsk.core.Matrix3D.create(), True) 
+
+
+    # Give feed back to user
     if len(SavedComponents) == 0:
         msg = 'No component to save.'
     else:
@@ -138,12 +173,7 @@ def command_execute(args: adsk.core.CommandEventArgs):
         else:
             msg = str(len(SavedComponents)) + ' save component' + ' save'
         msg += '\n\n'
-        for deletedComponentI in SavedComponents:
-            msg += '\n' + deletedComponentI
-
     ui.messageBox(msg, title)
-
-        
 
 # This event handler is called when the command terminates.
 def command_destroy(args: adsk.core.CommandEventArgs):
