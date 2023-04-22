@@ -1,4 +1,4 @@
-import adsk.core
+import adsk.core, traceback
 import os
 from ...lib import fusion360utils as futil
 from ... import config
@@ -84,7 +84,7 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
     # Connect to the events that are needed by this command.
     futil.add_handler(args.command.execute, command_execute, local_handlers=local_handlers)
     futil.add_handler(args.command.destroy, command_destroy, local_handlers=local_handlers)
-    
+
     # Get all components in the active design.
     product = app.activeProduct
     global design
@@ -101,35 +101,32 @@ def command_execute(args: adsk.core.CommandEventArgs):
     # General logging for debug.
     futil.log(f'{CMD_NAME} Command Execute Event')
 
-    
+    # Liste of all de components
     components = design.allComponents
-
-    # Find all of the empty components.
-    # It is empty if it has no occurrences, bodies, featres, sketches, or construction.
+    # Find the root component to exclude it
     root = design.rootComponent
+    # Make the list of all the component to save
     componentsToSave = []
-
     for component in components:
-
         # Skip the root component.
         if root == component:
             continue
-        
         componentsToSave.append(component)
 
-    
-    # Delete all immediate occurrences of the empty components.
+    # Save as all the component
     SavedComponents = []
-    Folder = app.data.activeFolder
+    New_folder_name = root.name
+    Active_Folder = app.data.activeFolder
+    Save_Folder = Active_Folder.dataFolders.add(New_folder_name + ' external part ')
     global k
     k = 0
     for component in componentsToSave:
-
-        # Get the name first because deleting the final Occurrence will delete the Component.
+        # Get the name
         name = component.name
-        component.saveCopyAs(name,Folder ,'','' )
+        component.saveCopyAs(name,Save_Folder ,'','' )
         SavedComponents.append(name)
 
+    # Give feed back to user
     if len(SavedComponents) == 0:
         msg = 'No component to save.'
     else:
@@ -138,12 +135,7 @@ def command_execute(args: adsk.core.CommandEventArgs):
         else:
             msg = str(len(SavedComponents)) + ' save component' + ' save'
         msg += '\n\n'
-        for deletedComponentI in SavedComponents:
-            msg += '\n' + deletedComponentI
-
     ui.messageBox(msg, title)
-
-        
 
 # This event handler is called when the command terminates.
 def command_destroy(args: adsk.core.CommandEventArgs):
