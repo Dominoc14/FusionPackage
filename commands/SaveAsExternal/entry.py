@@ -2,6 +2,7 @@ import adsk.core, traceback
 import os
 from ...lib import fusion360utils as futil
 from ... import config
+import time
 app = adsk.core.Application.get()
 ui = app.userInterface
 
@@ -115,16 +116,53 @@ def command_execute(args: adsk.core.CommandEventArgs):
 
     # Save as all the component
     SavedComponents = []
-    New_folder_name = root.name
+    Root_Name = root.name
+    New_folder_name = Root_Name  + ' external part '
     Active_Folder = app.data.activeFolder
-    Save_Folder = Active_Folder.dataFolders.add(New_folder_name + ' external part ')
+    Save_Folder = Active_Folder.dataFolders.add(New_folder_name)
     global k
     k = 0
     for component in componentsToSave:
         # Get the name
         name = component.name
-        component.saveCopyAs(name,Save_Folder ,'','' )
+        doc = component.saveCopyAs(name,Save_Folder ,'','' )
         SavedComponents.append(name)
+        # Spin until the save is complete, up to 5 seconds and then abort.
+        startTime = time.time()
+        endTime = startTime + 10
+        while not doc.uploadState and time.time() < endTime: 
+         app.log('Waiting for save to finish.')
+         state = doc.uploadState
+         app.log(str(state))
+         time.sleep(0.5)
+         adsk.doEvents()
+        app.log('File is saved')
+        state = doc.uploadState
+        app.log(str(state))
+        adsk.doEvents()
+    
+    componentsToDelete = componentsToSave
+    for component in componentsToDelete:
+     if component.isValid == True:
+        occurrences = root.allOccurrencesByComponent(component)
+        name = component.name
+        uniqueOccurrences = []
+        for occurrence in occurrences:
+                
+            for k in range(0, len(uniqueOccurrences)):
+                if occurrence is uniqueOccurrences[k]:
+                    break
+            if k == len(uniqueOccurrences):
+                uniqueOccurrences.append(occurrence)
+
+            # Delete them.
+            for uniqueOccurrencesI in uniqueOccurrences:
+                uniqueOccurrencesI.deleteMe()
+
+    #import file into curent design 
+    for file in Save_Folder.dataFiles:
+           root.occurrences.addByInsert(file, adsk.core.Matrix3D.create(), True) 
+
 
     # Give feed back to user
     if len(SavedComponents) == 0:
