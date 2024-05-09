@@ -84,7 +84,22 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
 
     # Connect to the events that are needed by this command.
     futil.add_handler(args.command.execute, command_execute, local_handlers=local_handlers)
+    futil.add_handler(args.command.inputChanged, command_input_changed, local_handlers=local_handlers)
     futil.add_handler(args.command.destroy, command_destroy, local_handlers=local_handlers)
+    
+    # Create the UI box
+    inputs = args.command.commandInputs
+
+    # Create the title of the UI box
+    title_box = inputs.addTextBoxCommandInput('title_box', '', 'PDF export', 1, True)
+
+    text_box_message = "You are about to save as PDF <b>all the drawing</b> contained in the open directory. <br> Once you click OK, you will have to choose where you want to save the PDF "
+    text_box_input = inputs.addTextBoxCommandInput('text_box_input', 'Text Box', text_box_message, 2, True)
+    text_box_input.isFullWidth = True
+    
+    # Create a selection input, apply filters and set the selection limits
+    Open_PDF_input = inputs.addBoolValueInput('Open_PDF_input', 'Open PDF', True, '', False)
+    Open_PDF_input.tooltip = "Check the box if you whant all the PDF to be open"
 
     # Get all components in the active design.
     product = app.activeProduct
@@ -101,6 +116,11 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
 def command_execute(args: adsk.core.CommandEventArgs):
     # General logging for debug.
     futil.log(f'{CMD_NAME} Command Execute Event')
+
+    # Get a reference to your command's inputs.
+    inputs = args.command.commandInputs
+    Open_PDF_input : adsk.core.SelectionCommandInput = inputs.itemById('Open_PDF_input')
+    
 
     # Let users choose the folder to save the PDF files
     # Set styles of file dialog.
@@ -166,7 +186,7 @@ def command_execute(args: adsk.core.CommandEventArgs):
              pdfExpMgr :adsk.drawing.DrawingExportManager = draw.exportManager
 
              pdfExpOpt :adsk.drawing.DrawingExportOptions = pdfExpMgr.createPDFExportOptions(expPDFpath)
-             pdfExpOpt.openPDF = True
+             pdfExpOpt.openPDF = Open_PDF_input.value 
              pdfExpOpt.useLineWeights = True
 
              pdfExpMgr.execute(pdfExpOpt)
@@ -174,6 +194,15 @@ def command_execute(args: adsk.core.CommandEventArgs):
              # close doc
              drawDoc.close(False)
 
+
+# This event handler is called when the user changes anything in the command dialog
+# allowing you to modify values of other inputs based on that change.
+def command_input_changed(args: adsk.core.InputChangedEventArgs):
+    changed_input = args.input
+    inputs = args.inputs
+
+    # General logging for debug.
+    futil.log(f'{CMD_NAME} Input Changed Event fired from a change to {changed_input.id}')
 
 # This event handler is called when the command terminates.
 def command_destroy(args: adsk.core.CommandEventArgs):
