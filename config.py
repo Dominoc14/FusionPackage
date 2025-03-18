@@ -29,5 +29,9 @@ print_3d_panl_name = '3D PRINT'
 clean_CAD_panl_id = 'clean_cad'
 clean_CAD_panl_name = 'Clean CAD'
 
+# File export
+file_export_id = 'File_Export'
+file_export_name = ' File Export'
+
 # Palettes
 sample_palette_id = f'{COMPANY_NAME}_{ADDIN_NAME}_palette_id'

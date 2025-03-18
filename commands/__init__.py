@@ -6,12 +6,16 @@
 from .Engrave3D import entry as Engrave3D
 from .DeleteEmptyComponents import entry as DeleteEmptyComponents
 from .SaveAsExternal import entry as SaveAsExternal
+from .PDF_export import entry as PDF_export
+from .PCB_Dummy import entry as PCB_Dummy
+from .PCB_Dummy2 import entry as PCB_Dummy2
 
 # TODO add your imported modules to this list.
 # Fusion will automatically call the start() and stop() functions.
 commands = [
     Engrave3D,DeleteEmptyComponents,
-    SaveAsExternal,
+    SaveAsExternal,PDF_export,
+    PCB_Dummy,PCB_Dummy2,
 ]
 
 
